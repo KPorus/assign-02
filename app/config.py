@@ -27,6 +27,15 @@ class Settings(BaseSettings):
         default="postgresql://postgres:dev@localhost:5432/blog",
         alias="DATABASE_URL",
     )
+    secret_key: str = Field(
+        default="dev-secret-change-me-in-production",
+        alias="SECRET_KEY",
+    )
+    jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
+    access_token_expire_minutes: int = Field(
+        default=30,
+        alias="ACCESS_TOKEN_EXPIRE_MINUTES",
+    )
 
 
 @lru_cache

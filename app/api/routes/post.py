@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, Path, Query, Request, status
 from app.config import get_settings
 from app.core.rate_limit import limiter
 from app.core.responses import success_response
-from app.dependencies import get_post_service
+from app.dependencies import get_current_user, get_post_service
 from app.schemas.post import PostCreate, PostUpdate
+from app.schemas.user import UserResponse
 from app.services.post_service import PostService
 
 router = APIRouter(prefix="/posts", tags=["posts"])
@@ -17,8 +18,9 @@ async def create_post(
     request: Request,
     payload: PostCreate,
     service: PostService = Depends(get_post_service),
+    current_user: UserResponse = Depends(get_current_user),
 ):
-    post = service.create(payload)
+    post = service.create(payload, user_id=current_user.id)
     return success_response(
         data=post.model_dump(),
         message="Post created successfully",
@@ -76,8 +78,9 @@ async def update_post(
     payload: PostUpdate,
     post_id: int = Path(..., gt=0),
     service: PostService = Depends(get_post_service),
+    current_user: UserResponse = Depends(get_current_user),
 ):
-    post = service.update(post_id, payload)
+    post = service.update(post_id, payload, user_id=current_user.id)
     return success_response(
         data=post.model_dump(),
         message="Post updated successfully",
@@ -90,8 +93,9 @@ async def delete_post(
     request: Request,
     post_id: int = Path(..., gt=0),
     service: PostService = Depends(get_post_service),
+    current_user: UserResponse = Depends(get_current_user),
 ):
-    post = service.delete(post_id)
+    post = service.delete(post_id, user_id=current_user.id)
     return success_response(
         data=post.model_dump(),
         message="Post deleted successfully",

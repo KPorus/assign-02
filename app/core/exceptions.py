@@ -37,3 +37,13 @@ class ValidationAppError(AppException):
             status_code=422,
             details=details,
         )
+
+
+class UnauthorizedError(AppException):
+    def __init__(self, message: str = "Unauthorized", *, code: str = "UNAUTHORIZED") -> None:
+        super().__init__(message, code=code, status_code=401)
+
+
+class ForbiddenError(AppException):
+    def __init__(self, message: str = "Forbidden", *, code: str = "FORBIDDEN") -> None:
+        super().__init__(message, code=code, status_code=403)
