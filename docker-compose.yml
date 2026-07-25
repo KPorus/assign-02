@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:17
+    container_name: taskdb
+    restart: always
+    environment:
+      POSTGRES_DB: tasks
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tasks"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: task-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Override host .env so the API container reaches Postgres by service name
+      DATABASE_URL: postgresql://postgres:dev@db:5432/tasks
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
