@@ -1,10 +1,10 @@
 services:
   db:
     image: postgres:17
-    container_name: taskdb
+    container_name: blogdb
     restart: always
     environment:
-      POSTGRES_DB: tasks
+      POSTGRES_DB: blog
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: dev
     ports:
@@ -12,14 +12,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tasks"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d blog"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   api:
     build: .
-    container_name: task-api
+    container_name: blog-api
     restart: unless-stopped
     depends_on:
       db:
@@ -28,7 +28,7 @@ services:
       - .env
     environment:
       # Override host .env so the API container reaches Postgres by service name
-      DATABASE_URL: postgresql://postgres:dev@db:5432/tasks
+      DATABASE_URL: postgresql://postgres:dev@db:5432/blog
     ports:
       - "8000:8000"
 
