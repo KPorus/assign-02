@@ -295,5 +295,15 @@ class UserService:
         except ConflictError as exc:
             raise UnauthorizedError("User profile could not be loaded") from exc
 
+    def sign_out(self, access_token: str) -> None:
+        """Invalidate the Supabase session for this access token (global scope)."""
+        # Confirm the token is valid first so logout requires a real session.
+        self.get_by_access_token(access_token)
+        client = get_supabase()
+        try:
+            client.auth.admin.sign_out(access_token, scope="global")
+        except AuthApiError as exc:
+            raise UnauthorizedError("Unable to sign out session") from exc
+
 
 user_service = UserService()
