@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     username: str
     email: EmailStr
     created_at: datetime = Field(default_factory=datetime.now)
@@ -15,21 +15,27 @@ class UserResponse(BaseModel):
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=1, max_length=20)
     email: EmailStr
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=8, max_length=72)
 
 
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=1, max_length=20)
     email: EmailStr | None = None
-    password: str | None = Field(default=None, min_length=8)
+    password: str | None = Field(default=None, min_length=8, max_length=72)
 
 
 class UserLogin(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=8, max_length=72)
 
 
 class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class AuthResult(BaseModel):
+    user: UserResponse
     access_token: str
     token_type: str = "bearer"
 

@@ -47,3 +47,13 @@ class UnauthorizedError(AppException):
 class ForbiddenError(AppException):
     def __init__(self, message: str = "Forbidden", *, code: str = "FORBIDDEN") -> None:
         super().__init__(message, code=code, status_code=403)
+
+
+class TooManyRequestsError(AppException):
+    def __init__(
+        self,
+        message: str = "Too many requests",
+        *,
+        code: str = "RATE_LIMIT_EXCEEDED",
+    ) -> None:
+        super().__init__(message, code=code, status_code=429)

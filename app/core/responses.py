@@ -1,6 +1,7 @@
 from contextvars import ContextVar
 from typing import Any
 
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
@@ -33,12 +34,14 @@ def success_response(
 ) -> JSONResponse:
     return JSONResponse(
         status_code=status_code,
-        content={
-            "success": True,
-            "message": message,
-            "data": data,
-            "meta": build_meta(),
-        },
+        content=jsonable_encoder(
+            {
+                "success": True,
+                "message": message,
+                "data": data,
+                "meta": build_meta(),
+            }
+        ),
     )
 
 
@@ -50,10 +53,12 @@ def error_response(
 ) -> JSONResponse:
     return JSONResponse(
         status_code=status_code,
-        content={
-            "success": False,
-            "message": message,
-            "errors": errors or [{"code": "ERROR", "detail": message}],
-            "meta": build_meta(),
-        },
+        content=jsonable_encoder(
+            {
+                "success": False,
+                "message": message,
+                "errors": errors or [{"code": "ERROR", "detail": message}],
+                "meta": build_meta(),
+            }
+        ),
     )

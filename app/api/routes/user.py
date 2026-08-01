@@ -31,7 +31,7 @@ async def create_user(
 @limiter.limit(settings.rate_limit_default)
 async def get_user(
     request: Request,
-    user_id: int = Path(..., gt=0),
+    user_id: str = Path(..., min_length=1),
     service: UserService = Depends(get_user_service),
 ):
     user = service.get(user_id)
@@ -47,7 +47,7 @@ async def get_user(
 async def update_user(
     request: Request,
     payload: UserUpdate,
-    user_id: int = Path(..., gt=0),
+    user_id: str = Path(..., min_length=1),
     service: UserService = Depends(get_user_service),
     current_user: UserResponse = Depends(get_current_user),
 ):
@@ -65,7 +65,7 @@ async def update_user(
 @limiter.limit(settings.rate_limit_write)
 async def delete_user(
     request: Request,
-    user_id: int = Path(..., gt=0),
+    user_id: str = Path(..., min_length=1),
     service: UserService = Depends(get_user_service),
     current_user: UserResponse = Depends(get_current_user),
 ):
