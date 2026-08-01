@@ -12,6 +12,20 @@ router = APIRouter(prefix="/users", tags=["users"])
 settings = get_settings()
 
 
+@router.get("/me", status_code=status.HTTP_200_OK)
+@limiter.limit(settings.rate_limit_default)
+async def get_my_profile(
+    request: Request,
+    current_user: UserResponse = Depends(get_current_user),
+):
+    """Protected profile for the authenticated user."""
+    return success_response(
+        data=current_user.model_dump(),
+        message="Profile retrieved successfully",
+        status_code=status.HTTP_200_OK,
+    )
+
+
 @router.post("/create", status_code=status.HTTP_201_CREATED)
 @limiter.limit(settings.rate_limit_write)
 async def create_user(
@@ -24,21 +38,6 @@ async def create_user(
         data=user.model_dump(),
         message="User created successfully",
         status_code=status.HTTP_201_CREATED,
-    )
-
-
-@router.get("/get/{user_id}", status_code=status.HTTP_200_OK)
-@limiter.limit(settings.rate_limit_default)
-async def get_user(
-    request: Request,
-    user_id: str = Path(..., min_length=1),
-    service: UserService = Depends(get_user_service),
-):
-    user = service.get(user_id)
-    return success_response(
-        data=user.model_dump(),
-        message="User retrieved successfully",
-        status_code=status.HTTP_200_OK,
     )
 
 

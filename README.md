@@ -127,11 +127,12 @@ Deleting a user removes their Supabase Auth/profile row and cleans up their loca
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/health` | No | Health check |
+| GET | `/public/info` | No | Public welcome message |
 | POST | `/auth/login` | No | JSON login → Supabase JWT |
 | POST | `/auth/token` | No | OAuth2 form login (Swagger) |
 | POST | `/auth/logout` | Yes | Sign out and remove session |
 | POST | `/users/create` | No | Register user |
-| GET | `/users/get/{user_id}` | No | Get user by UUID |
+| GET | `/users/me` | Yes | Protected profile (current user) |
 | PUT | `/users/update/{user_id}` | Yes (owner) | Update profile |
 | DELETE | `/users/delete/{user_id}` | Yes (owner) | Delete profile + posts |
 | POST | `/posts` | Yes | Create post |
