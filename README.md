@@ -148,9 +148,18 @@ Deleting a user removes their Supabase Auth/profile row and cleans up their loca
 curl "http://127.0.0.1:8000/posts/search?q=fastapi&page=1&page_size=10"
 ```
 
-## Examples
+## API smoke tests
 
-**Register**
+With the API running:
+
+```bash
+python3 scripts/test_api.py
+# or
+python3 scripts/test_api.py --base-url http://127.0.0.1:8000
+```
+
+Uses only the Python standard library (no extra packages). Covers public routes, register/login, protected profile, posts CRUD/search, logout, and cleanup.
+
 
 ```bash
 curl -X POST http://127.0.0.1:8000/users/create \
