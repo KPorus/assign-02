@@ -20,7 +20,7 @@ from app.core.exceptions import (
     ValidationAppError,
 )
 from app.db import database as db
-from app.db.supabase_client import get_supabase
+from app.db.supabase_client import create_auth_client, get_supabase
 from app.schemas.user import AuthResult, UserCreate, UserResponse, UserUpdate
 
 USERS_TABLE = "users"
@@ -65,6 +65,13 @@ def _raise_auth_error(exc: AuthApiError) -> NoReturn:
         ) from exc
     if "already" in lower or "registered" in lower or "exists" in lower:
         raise ConflictError("Email already registered") from exc
+    if "not allowed" in lower:
+        raise ValidationAppError(
+            "Supabase rejected user creation (User not allowed). "
+            "Usually the API client was logged in as a normal user, or "
+            "Email signup is disabled under Authentication → Providers → Email. "
+            "Rebuild/restart the API after the latest fix, then try again."
+        ) from exc
     if "invalid" in lower:
         raise ValidationAppError(
             message,
@@ -256,9 +263,10 @@ class UserService:
         return user
 
     def authenticate(self, email: str, password: str) -> AuthResult:
-        client = get_supabase()
+        # Use a throwaway client so sign-in does not pollute the admin client.
+        auth_client = create_auth_client()
         try:
-            auth_response = client.auth.sign_in_with_password(
+            auth_response = auth_client.auth.sign_in_with_password(
                 {"email": email, "password": password}
             )
         except AuthApiError as exc:
@@ -274,9 +282,9 @@ class UserService:
         return AuthResult(user=user, access_token=session.access_token)
 
     def get_by_access_token(self, token: str) -> UserResponse:
-        client = get_supabase()
+        auth_client = create_auth_client()
         try:
-            response = client.auth.get_user(token)
+            response = auth_client.auth.get_user(token)
         except AuthApiError as exc:
             raise UnauthorizedError("Invalid or expired token") from exc
         auth_user = response.user
